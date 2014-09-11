@@ -4,11 +4,12 @@ A module to install Jetty and configure the service
 
 ## Usage
 
-    class { 'jetty':
+    jetty { 'myservice':
       version => "9.0.4.v20130625",
       home    => "/opt",
       user    => "jetty",
       group   => "jetty",
+      name    => "jetty-myservice"
     }
 
 ## Upgrading
