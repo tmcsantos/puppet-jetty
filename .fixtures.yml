@@ -1,3 +1,5 @@
 fixtures:
+  repositories:
+    stdlib: git://github.com/maestrodev/puppet-wget.git
   symlinks:
     jetty: "#{source_dir}"
