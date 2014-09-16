@@ -8,8 +8,12 @@ define jetty (
 ) {
 
   include wget
+  $pattern_jetty_home_cond = regsubst('^if \[ -z "\$JETTY_HOME" \]\; then', '/', '\\/', 'G', 'U')
+  $replacement_jetty_home_cond = regsubst("if [ \"\\\$JETTY_HOME\" ]; then", '/', '\\/', 'G', 'U')
+
   $pattern_jetty_home = regsubst('^cd "\$JETTY_HOME"', '/', '\\/', 'G', 'U')
   $replacement_jetty_home = regsubst("cd \"${home}/jetty\"", '/', '\\/', 'G', 'U')
+  
   $pattern_jetty_pid = regsubst('^  JETTY_PID="\$JETTY_RUN/jetty.pid"', '/', '\\/', 'G', 'U')
   $replacement_jetty_pid = regsubst("  JETTY_PID=\"\\\$JETTY_RUN/${name}.pid\"", '/', '\\/', 'G', 'U')
   $file = "${home}/jetty-distribution-${version}/bin/jetty.sh"
@@ -70,6 +74,10 @@ define jetty (
     command => "/usr/bin/perl -pi -e 's/${pattern_jetty_pid}/${replacement_jetty_pid}/' '${file}'",
     onlyif => "/usr/bin/perl -ne 'BEGIN { \$ret = 1; } \$ret = 0 if /${pattern_jetty_pid}/ && ! /\\Q${replacement_jetty_pid}\\E/; END { exit \$ret; }' '${file}'",
     alias => "pid_${name}",
+  } ->
+  exec { "replace JETTY_HOME conditional for ${name} in jetty.sh":
+    command => "/usr/bin/perl -pi -e 's/${pattern_jetty_home_cond}/${replacement_jetty_home_cond}/' '${file}'",
+    onlyif => "/usr/bin/perl -ne 'BEGIN { \$ret = 1; } \$ret = 0 if /${pattern_jetty_home_cond}/ && ! /\\Q${replacement_jetty_home_cond}\\E/; END { exit \$ret; }' '${file}'",
   } ->
   file { "/etc/init.d/${name}":
     ensure => "${file}",
